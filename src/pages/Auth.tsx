@@ -7,19 +7,24 @@ import { toast } from '@/hooks/use-toast';
 import { Mail, Lock, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const ADMIN_EMAIL = 'mohammedmubashirali658@gmail.com';
+
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) navigate('/admin');
+      if (session && session.user.email === ADMIN_EMAIL) {
+        navigate('/admin');
+      }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate('/admin');
+      if (session && session.user.email === ADMIN_EMAIL) {
+        navigate('/admin');
+      }
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
@@ -29,19 +34,27 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast({ title: 'Welcome back!' });
+      // Only allow login, not signup - and only for admin email
+      if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        throw new Error('Access denied. Only admin can login.');
+      }
+
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        // If user doesn't exist, create admin account
+        if (error.message.includes('Invalid login credentials')) {
+          const { error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: `${window.location.origin}/admin` },
+          });
+          if (signUpError) throw signUpError;
+          toast({ title: 'Admin account created!', description: 'You can now sign in.' });
+        } else {
+          throw error;
+        }
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
-        });
-        if (error) throw error;
-        toast({ title: 'Account created!', description: 'You can now sign in.' });
-        setIsLogin(true);
+        toast({ title: 'Welcome back, Admin!' });
       }
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
@@ -59,10 +72,10 @@ const Auth = () => {
         
         <div className="glass-card p-8">
           <h1 className="text-2xl font-display font-bold gradient-text mb-2">
-            {isLogin ? 'Admin Login' : 'Create Account'}
+            Admin Login
           </h1>
           <p className="text-muted-foreground mb-6">
-            {isLogin ? 'Sign in to manage your portfolio' : 'Create an admin account'}
+            Sign in to manage your portfolio
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -70,7 +83,7 @@ const Auth = () => {
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder="Admin Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 bg-secondary/30"
@@ -90,16 +103,9 @@ const Auth = () => {
               />
             </div>
             <Button type="submit" className="w-full btn-hero-primary" disabled={loading}>
-              {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
+              {loading ? 'Loading...' : 'Sign In'}
             </Button>
           </form>
-
-          <p className="text-center text-muted-foreground text-sm mt-6">
-            {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-            <button onClick={() => setIsLogin(!isLogin)} className="text-primary hover:underline">
-              {isLogin ? 'Sign Up' : 'Sign In'}
-            </button>
-          </p>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Mail, Download, Github, Linkedin, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import profilePhoto from '@/assets/profile-photo.png';
 
 interface HeroSectionProps {
   profile: {
@@ -125,19 +126,11 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
           >
             <div className="relative">
               <div className="w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-2xl overflow-hidden glass-card p-1">
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt={profile.name}
-                    className="w-full h-full object-cover rounded-xl"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center">
-                    <span className="text-6xl font-display font-bold gradient-text">
-                      {(profile?.name || 'MMA').split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                )}
+                <img
+                  src={profilePhoto}
+                  alt={profile?.name || 'Mohammed Mubashir Ali'}
+                  className="w-full h-full object-cover rounded-xl"
+                />
               </div>
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/20 rounded-full blur-xl animate-pulse-glow" />
