@@ -34,28 +34,16 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Only allow login, not signup - and only for admin email
+      // Only allow login for admin email
       if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
         throw new Error('Access denied. Only admin can login.');
       }
 
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        // If user doesn't exist, create admin account
-        if (error.message.includes('Invalid login credentials')) {
-          const { error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: { emailRedirectTo: `${window.location.origin}/admin` },
-          });
-          if (signUpError) throw signUpError;
-          toast({ title: 'Admin account created!', description: 'You can now sign in.' });
-        } else {
-          throw error;
-        }
-      } else {
-        toast({ title: 'Welcome back, Admin!' });
+        throw error;
       }
+      toast({ title: 'Welcome back, Admin!' });
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
