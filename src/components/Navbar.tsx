@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Settings } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from './ThemeProvider';
+import { Button } from '@/components/ui/button';
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -17,6 +19,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,22 +67,41 @@ const Navbar = () => {
                 {item.name}
               </button>
             ))}
-            <Link
-              to="/admin"
-              className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors"
-              title="Admin Panel"
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="rounded-lg"
             >
-              <Settings className="w-4 h-4" />
-            </Link>
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-secondary/50 transition-colors"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="rounded-lg"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </Button>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg hover:bg-secondary/50 transition-colors"
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -101,13 +123,6 @@ const Navbar = () => {
                     {item.name}
                   </button>
                 ))}
-                <Link
-                  to="/admin"
-                  className="text-muted-foreground hover:text-foreground transition-colors duration-300 flex items-center gap-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Settings className="w-4 h-4" /> Admin Panel
-                </Link>
               </div>
             </motion.div>
           )}
