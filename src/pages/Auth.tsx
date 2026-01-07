@@ -12,38 +12,92 @@ const ADMIN_EMAIL = 'mohammedmubashirali658@gmail.com';
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<'login' | 'forgot' | 'reset'>('login');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session && session.user.email === ADMIN_EMAIL) {
-        navigate('/admin');
-      }
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && session.user.email === ADMIN_EMAIL) {
-        navigate('/admin');
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    // Check if this is a password reset callback
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    if (type === 'recovery') {
+      setMode('reset');
+    }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setMode('reset');
+      } else if (session && session.user.email === ADMIN_EMAIL) {
+        navigate('/admin');
+      }
+    });
+    
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session && session.user.email === ADMIN_EMAIL && mode !== 'reset') {
+        navigate('/admin');
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [navigate, mode]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Only allow login for admin email
       if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
         throw new Error('Access denied. Only admin can login.');
       }
 
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       toast({ title: 'Welcome back, Admin!' });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        throw new Error('Access denied. Only admin can reset password.');
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+      
+      if (error) throw error;
+      toast({ 
+        title: 'Reset link sent!', 
+        description: 'Check your email for the password reset link.' 
+      });
+      setMode('login');
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      
+      toast({ title: 'Password updated!', description: 'You can now login with your new password.' });
+      setMode('login');
+      setNewPassword('');
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
@@ -60,40 +114,99 @@ const Auth = () => {
         
         <div className="glass-card p-8">
           <h1 className="text-2xl font-display font-bold gradient-text mb-2">
-            Admin Login
+            {mode === 'login' && 'Admin Login'}
+            {mode === 'forgot' && 'Reset Password'}
+            {mode === 'reset' && 'Set New Password'}
           </h1>
           <p className="text-muted-foreground mb-6">
-            Sign in to manage your portfolio
+            {mode === 'login' && 'Sign in to manage your portfolio'}
+            {mode === 'forgot' && 'Enter your email to receive a reset link'}
+            {mode === 'reset' && 'Enter your new password'}
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="email"
-                placeholder="Admin Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-secondary/30"
-                required
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-secondary/30"
-                required
-                minLength={6}
-              />
-            </div>
-            <Button type="submit" className="w-full btn-hero-primary" disabled={loading}>
-              {loading ? 'Loading...' : 'Sign In'}
-            </Button>
-          </form>
+          {mode === 'login' && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="Admin Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 bg-secondary/30"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 bg-secondary/30"
+                  required
+                  minLength={6}
+                />
+              </div>
+              <Button type="submit" className="w-full btn-hero-primary" disabled={loading}>
+                {loading ? 'Loading...' : 'Sign In'}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setMode('forgot')}
+                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Forgot password?
+              </button>
+            </form>
+          )}
+
+          {mode === 'forgot' && (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="email"
+                  placeholder="Admin Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 bg-secondary/30"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full btn-hero-primary" disabled={loading}>
+                {loading ? 'Sending...' : 'Send Reset Link'}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setMode('login')}
+                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Back to login
+              </button>
+            </form>
+          )}
+
+          {mode === 'reset' && (
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="password"
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="pl-10 bg-secondary/30"
+                  required
+                  minLength={6}
+                />
+              </div>
+              <Button type="submit" className="w-full btn-hero-primary" disabled={loading}>
+                {loading ? 'Updating...' : 'Update Password'}
+              </Button>
+            </form>
+          )}
         </div>
       </div>
     </div>
