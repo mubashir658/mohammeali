@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
-import { Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ADMIN_EMAIL = 'mohammedmubashirali658@gmail.com';
@@ -13,34 +13,47 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'login' | 'forgot' | 'reset'>('login');
+  const [isRecoverySession, setIsRecoverySession] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if this is a password reset callback
+    // Check URL for recovery tokens (Supabase uses different formats)
+    const url = new URL(window.location.href);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const type = hashParams.get('type');
-    if (type === 'recovery') {
+    const queryType = url.searchParams.get('type');
+    const hashType = hashParams.get('type');
+    const accessToken = hashParams.get('access_token') || url.searchParams.get('access_token');
+    
+    // Detect recovery from URL
+    if (queryType === 'recovery' || hashType === 'recovery' || accessToken) {
       setMode('reset');
+      setIsRecoverySession(true);
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         setMode('reset');
-      } else if (session && session.user.email === ADMIN_EMAIL) {
-        navigate('/admin');
+        setIsRecoverySession(true);
+      } else if (event === 'SIGNED_IN' && session && !isRecoverySession) {
+        if (session.user.email === ADMIN_EMAIL) {
+          navigate('/admin');
+        }
       }
     });
     
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && session.user.email === ADMIN_EMAIL && mode !== 'reset') {
+      // Don't redirect if we're in recovery mode
+      if (session && session.user.email === ADMIN_EMAIL && mode !== 'reset' && !isRecoverySession) {
         navigate('/admin');
       }
     });
     
     return () => subscription.unsubscribe();
-  }, [navigate, mode]);
+  }, [navigate, mode, isRecoverySession]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,14 +153,21 @@ const Auth = () => {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-secondary/30"
+                  className="pl-10 pr-10 bg-secondary/30"
                   required
                   minLength={6}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
               <Button type="submit" className="w-full btn-hero-primary" disabled={loading}>
                 {loading ? 'Loading...' : 'Sign In'}
@@ -193,14 +213,21 @@ const Auth = () => {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   placeholder="New Password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="pl-10 bg-secondary/30"
+                  className="pl-10 pr-10 bg-secondary/30"
                   required
                   minLength={6}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
               <Button type="submit" className="w-full btn-hero-primary" disabled={loading}>
                 {loading ? 'Updating...' : 'Update Password'}
