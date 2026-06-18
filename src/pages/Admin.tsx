@@ -9,6 +9,7 @@ import { LogOut, Save, ArrowLeft, User, Briefcase, GraduationCap, Trophy, Code, 
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { usePageMeta } from '@/hooks/use-page-meta';
 
 const ADMIN_EMAIL = 'mohammedmubashirali658@gmail.com';
 
@@ -22,6 +23,12 @@ const Admin = () => {
   const [achievements, setAchievements] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
+
+  usePageMeta({
+    title: 'Admin Dashboard | Mohammed Mubashir Ali',
+    description: 'Private admin dashboard to manage portfolio content for Mohammed Mubashir Ali.',
+    canonical: 'https://mohammeali.lovable.app/admin',
+  });
 
   // Form states
   const [skillForm, setSkillForm] = useState({ name: '', category: '', icon: '' });
