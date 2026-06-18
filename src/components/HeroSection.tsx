@@ -51,11 +51,12 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-display mb-4">
               {profile?.name || 'Mohammed Mubashir Ali'}
+              <span className="sr-only"> — {profile?.headline || 'Software Engineer & AI Enthusiast'}</span>
             </h1>
 
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-display gradient-text mb-4">
+            <p className="text-xl md:text-2xl lg:text-3xl font-display gradient-text mb-4" aria-hidden="true">
               {profile?.headline || 'Software Engineer | AI Enthusiast'}
-            </h2>
+            </p>
 
             <p className="text-muted-foreground text-lg mb-8 max-w-lg mx-auto md:mx-0">
               {profile?.subheadline || 'Transforming ideas into intelligent solutions with AI & Modern Web Technologies'}
@@ -90,6 +91,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
                   href={profile.github_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="GitHub profile"
                   className="p-3 glass-card hover:bg-primary/20 transition-colors"
                 >
                   <Github className="w-5 h-5" />
@@ -100,6 +102,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
                   href={profile.linkedin_url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="LinkedIn profile"
                   className="p-3 glass-card hover:bg-primary/20 transition-colors"
                 >
                   <Linkedin className="w-5 h-5" />
@@ -108,6 +111,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
               {profile?.email && (
                 <a
                   href={`mailto:${profile.email}`}
+                  aria-label="Send email"
                   className="p-3 glass-card hover:bg-primary/20 transition-colors"
                 >
                   <Mail className="w-5 h-5" />

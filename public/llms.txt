@@ -1,0 +1,9 @@
+# Mohammed Mubashir Ali
+
+> Portfolio of Mohammed Mubashir Ali — Software Engineer, AI/ML Enthusiast, and Full-Stack Developer based in Hyderabad, India.
+
+This site showcases projects, skills, education, and achievements across AI/ML, full-stack web development, and DSA. Visitors can review featured work, download a resume, and get in touch via the contact form.
+
+## Pages
+
+- [Home](/): About, skills, projects, education, achievements, and contact.
