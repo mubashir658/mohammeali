@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { Mail, Lock, ArrowLeft, Eye, EyeOff, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { usePageMeta } from '@/hooks/use-page-meta';
 
 const ADMIN_EMAIL = 'mohammedmubashirali658@gmail.com';
 
@@ -21,6 +22,12 @@ const Auth = () => {
   const [mode, setMode] = useState<'login' | 'forgot' | 'reset' | 'signup'>('login');
   const [isRecoverySession, setIsRecoverySession] = useState(false);
   const navigate = useNavigate();
+
+  usePageMeta({
+    title: 'Admin Login | Mohammed Mubashir Ali',
+    description: 'Admin login for the Mohammed Mubashir Ali portfolio site. Authorized administrators only.',
+    canonical: 'https://mohammeali.lovable.app/auth',
+  });
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -207,6 +214,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -261,6 +269,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -280,6 +289,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -340,6 +350,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
+                  aria-label={showNewPassword ? 'Hide new password' : 'Show new password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

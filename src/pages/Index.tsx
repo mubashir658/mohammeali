@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { usePageMeta } from '@/hooks/use-page-meta';
 import NetworkBackground from '@/components/NetworkBackground';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
@@ -18,6 +19,14 @@ const Index = () => {
   const [education, setEducation] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  usePageMeta({
+    title: 'Mohammed Mubashir Ali | Software Engineer & AI Enthusiast',
+    description: 'Portfolio of Mohammed Mubashir Ali — Software Engineer and AI/ML Enthusiast in Hyderabad. Explore projects, skills, and achievements.',
+    canonical: 'https://mohammeali.lovable.app/',
+  });
+
+
 
   useEffect(() => {
     const fetchData = async () => {
