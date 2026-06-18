@@ -69,7 +69,7 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
               </Button>
               {profile?.resume_url && (
                 <Button asChild variant="outline" className="btn-hero-secondary">
-                  <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                  <a href={getResumeDownloadUrl(profile.resume_url)} target="_blank" rel="noopener noreferrer" download>
                     <Download className="w-4 h-4 mr-2" />
                     Download Resume
                   </a>
