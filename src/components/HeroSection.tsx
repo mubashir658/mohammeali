@@ -22,6 +22,12 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
     document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const getResumeDownloadUrl = (url: string) => {
+    const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/[?&]id=([^&]+)/);
+    if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    return url;
+  };
+
   return (
     <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
       <div className="container mx-auto px-4">
