@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/services/integrations/supabase/client';
 import { usePageMeta } from '@/hooks/use-page-meta';
 import NetworkBackground from '@/components/NetworkBackground';
 import Navbar from '@/components/Navbar';

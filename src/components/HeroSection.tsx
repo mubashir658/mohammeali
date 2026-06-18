@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Mail, Download, Github, Linkedin, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import profilePhoto from '@/assets/profile-photo.png';
+import profilePhoto from '@/assets/optimized/profile-photo.webp';
 
 interface HeroSectionProps {
   profile: {
@@ -139,6 +139,10 @@ const HeroSection = ({ profile }: HeroSectionProps) => {
                 <img
                   src={profilePhoto}
                   alt={profile?.name || 'Mohammed Mubashir Ali'}
+                  width={384}
+                  height={384}
+                  decoding="async"
+                  loading="lazy"
                   className="w-full h-full object-cover rounded-xl"
                 />
               </div>
