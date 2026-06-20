@@ -77,7 +77,7 @@ const EducationSection = ({ education }: EducationSectionProps) => {
                     )}
                     <p className="text-muted-foreground text-sm mb-2">{edu.institution}</p>
                     {edu.grade && (
-                      <span className="inline-block px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">
+                      <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
                         {edu.grade}
                       </span>
                     )}
